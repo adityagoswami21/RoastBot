@@ -1,6 +1,0 @@
-twitter_api_key = "KPJ60orFj5V1jLM9AW71xXklP"
-twitter_api_secret = "Nyu2ifyyGuMIDc5L1xngWpfXIrx1cDuTuN8P8ih2REfpG57qWA"
-twitter_access_token = "1652576887879659521-9Wz3qDynTeTBEXi4XdgjqHalx9Yfeh"
-twitter_access_token_secret = "2huwGlOfcZyejaBUFFn2IiQovJK3nXkPaw2ddWdqfV7P2"
-twitter_bearer_token = "AAAAAAAAAAAAAAAAAAAAAL45sQEAAAAA5hW%2B49e%2FWw1QUDyZmVzU%2BXYn0w0%3DVkSNJqKrbFZHtvrkZ7dTkGnEsd14ySocwSYf0eR8UM9JqrPpfP"
-airtable_token = "pat7zc1uWHzcu27os.1a658ce83f9a4719b567eba9479ade28892ce9ef86f4b6fc70b6045a86047ff4"
