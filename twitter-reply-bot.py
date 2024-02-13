@@ -7,7 +7,7 @@ import schedule
 import time
 import os
 from keys import (twitter_access_token, twitter_access_token_secret, twitter_bearer_token, twitter_api_key,
-                  twitter_api_secret, airtable_token)
+                  twitter_api_secret, airtable_token, base_key, openai_api_key)
 
 # Helpful when testing locally
 from dotenv import load_dotenv
@@ -20,11 +20,11 @@ TWITTER_ACCESS_TOKEN = os.getenv("TWITTER_ACCESS_TOKEN", twitter_access_token)
 TWITTER_ACCESS_TOKEN_SECRET = os.getenv("TWITTER_ACCESS_TOKEN_SECRET", twitter_access_token_secret)
 TWITTER_BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN", twitter_bearer_token)
 
-# AIRTABLE_API_KEY = os.getenv("AIRTABLE_API_KEY", airtable_token)
-# AIRTABLE_BASE_KEY = os.getenv("AIRTABLE_BASE_KEY", airtable_token)
-# AIRTABLE_TABLE_NAME = os.getenv("AIRTABLE_TABLE_NAME", airtable_token)
+AIRTABLE_API_KEY = os.getenv("AIRTABLE_API_KEY", airtable_token)
+AIRTABLE_BASE_KEY = os.getenv("AIRTABLE_BASE_KEY", base_key)
+AIRTABLE_TABLE_NAME = os.getenv("AIRTABLE_TABLE_NAME", "Table-1")
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "YourKey")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", openai_api_key)
 
 # TwitterBot class to help us organize our code and manage shared state
 class TwitterBot:
@@ -36,7 +36,7 @@ class TwitterBot:
                                          access_token_secret=TWITTER_ACCESS_TOKEN_SECRET,
                                          wait_on_rate_limit=True)
 
-        # self.airtable = Airtable(AIRTABLE_BASE_KEY, AIRTABLE_TABLE_NAME, AIRTABLE_API_KEY)
+        self.airtable = Airtable(AIRTABLE_BASE_KEY, AIRTABLE_TABLE_NAME, AIRTABLE_API_KEY)
         self.twitter_me_id = self.get_me_id()
         self.tweet_response_limit = 35 # How many tweets to respond to each time the program wakes up
 
@@ -98,15 +98,15 @@ class TwitterBot:
             return
         
         # Log the response in airtable if it was successful
-        # self.airtable.insert({
-        #     'mentioned_conversation_tweet_id': str(mentioned_conversation_tweet.id),
-        #     'mentioned_conversation_tweet_text': mentioned_conversation_tweet.text,
-        #     'tweet_response_id': response_tweet.data['id'],
-        #     'tweet_response_text': response_text,
-        #     'tweet_response_created_at' : datetime.utcnow().isoformat(),
-        #     'mentioned_at' : mention.created_at.isoformat()
-        # })
-        # return True
+        self.airtable.insert({
+            'mentioned_conversation_tweet_id': str(mentioned_conversation_tweet.id),
+            'mentioned_conversation_tweet_text': mentioned_conversation_tweet.text,
+            'tweet_response_id': response_tweet.data['id'],
+            'tweet_response_text': response_text,
+            'tweet_response_created_at' : datetime.utcnow().isoformat(),
+            'mentioned_at' : mention.created_at.isoformat()
+        })
+        return True
     
     # Returns the ID of the authenticated user for tweet creation purposes
     def get_me_id(self):
@@ -140,12 +140,12 @@ class TwitterBot:
                                                    tweet_fields=['created_at', 'conversation_id']).data
 
     # Checking to see if we've already responded to a mention with what's logged in airtable
-    # def check_already_responded(self, mentioned_conversation_tweet_id):
-    #     records = self.airtable.get_all(view='Grid view')
-    #     for record in records:
-    #         if record['fields'].get('mentioned_conversation_tweet_id') == str(mentioned_conversation_tweet_id):
-    #             return True
-    #     return False
+    def check_already_responded(self, mentioned_conversation_tweet_id):
+        records = self.airtable.get_all(view='Grid view')
+        for record in records:
+            if record['fields'].get('mentioned_conversation_tweet_id') == str(mentioned_conversation_tweet_id):
+                return True
+        return False
 
     # Run through all mentioned tweets and generate a response
     def respond_to_mentions(self):
@@ -164,7 +164,7 @@ class TwitterBot:
             
             # If the mention *is* the conversation or you've already responded, skip it and don't respond
             if (mentioned_conversation_tweet.id != mention.id
-                # and not self.check_already_responded(mentioned_conversation_tweet.id)
+                and not self.check_already_responded(mentioned_conversation_tweet.id)
                 ):
 
                 self.respond_to_mention(mention, mentioned_conversation_tweet)
