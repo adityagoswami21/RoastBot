@@ -1,6 +1,5 @@
 [![Official Website](https://img.shields.io/badge/Roast-Bot-blue)](https://roastbot-twitter.streamlit.app/)
 
-
 # RoastBot 🤖🔥
 
 RoastBot is a Twitter bot designed to generate sizzling roast responses for your tweets. Powered by advanced natural language processing techniques, RoastBot delivers spicy comebacks that are sure to leave your followers entertained.
